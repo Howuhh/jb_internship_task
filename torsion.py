@@ -7,11 +7,10 @@ from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 
-# custom type
 
 def phi_psi_angles(pdb_struct: Structure) -> Tuple[List[float], List[float]]:
     """
-    Returns tortions angles (φ and ψ) for the proteins from Structure object[1],
+    Returns torsions angles (φ and ψ) for the proteins from Structure object[1],
     which represents PDB or MMCIF files in biopython package.
 
     Torsion angles are dihedral angles, which are defined by 4 points in space. 
@@ -36,7 +35,10 @@ def phi_psi_angles(pdb_struct: Structure) -> Tuple[List[float], List[float]]:
         amino acids psi angles in degrees
 
     The order of angles is maintained, so zip(phi_values, psi_values) gives phi, psi angle for each amino acid.
-    """    
+    """
+    if not isinstance(pdb_struct, Structure):
+        raise TypeError("Incorrect type, use Bio.PDB.Structure.Structure from biopython.")
+
     phis, psis = [], []
     peptides = PPBuilder().build_peptides(pdb_struct)
     for peptide in peptides:
