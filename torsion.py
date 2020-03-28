@@ -1,11 +1,57 @@
+import os
 import math
 import Bio
+import requests
+
+import matplotlib.pyplot as plt
 
 from Bio.PDB import PPBuilder
 from Bio.PDB.Structure import Structure
+from Bio.PDB.MMCIFParser import MMCIFParser
 from typing import List, Tuple
 
-import matplotlib.pyplot as plt
+
+def fetch_pdb(pdb_id: str, remove: bool=True) -> Structure:
+    """
+    Downloads protein structure in .cif format from Protein Data Bank 
+    by PDB ID and returns its as a Structure object from biopython package. 
+    The downloaded file will be saved in current directory and then deleted
+    if remove is True. PDB ID — the 4-character unique identifier of 
+    every entry in the Protein Data Bank[1]. All IDs can be found on PDB site[2].
+
+    References
+    ----------
+    [1]: https://www.rcsb.org/pages/help/advancedsearch/pdbIDs
+    [2]: https://www.rcsb.org/pages/general/summaries
+
+    Parameters
+    ----------
+    pdb_id: str
+        PDB ID of the needed structure.
+    remove: bool
+        Remove or save downloaded file.
+
+    Returns
+    -------
+    pdb_struct: Bio.PBD.Structure.Structure
+        Structure object from biopython package for specified pdb id.
+
+    """
+    if len(pdb_id) != 4:
+        raise ValueError("Wrong PDB ID format. PDB ID should have 4-character length.")
+    
+    filename = f"{pdb_id}.cif"
+    pdb = requests.get(f"http://files.rcsb.org/download/{filename}")
+    if pdb.status_code != 200:
+        raise ConnectionError(f"Retrieval failed. Status: {pdb.status_code}")
+
+    with open(filename, "wb") as file:
+        file.write(pdb.content) 
+
+    pdb_struct = MMCIFParser().get_structure(pdb_id, filename)
+    if remove: os.remove(filename)
+
+    return pdb_struct    
 
 
 def phi_psi_angles(pdb_struct: Structure) -> Tuple[List[float], List[float]]:
