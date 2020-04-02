@@ -1,19 +1,42 @@
 import os
-import math
-import Bio
 import requests
+import matplotlib
 
+import numpy as np
 import matplotlib.pyplot as plt
+
+from math import degrees
+from typing import List, Tuple
+from scipy.stats import gaussian_kde
 
 from Bio.PDB import PPBuilder
 from Bio.PDB.Structure import Structure
 from Bio.PDB.MMCIFParser import MMCIFParser
-from typing import List, Tuple
+
+
+def load_pdb(pdb_path: str) -> Structure:
+    """
+    Load PDB file in .cif format. 
+
+    Parameters
+    ----------
+    pdb_path: str
+        path to .cif file 
+
+    Returns
+    -------
+    pdb_struct: Bio.PBD.Structure.Structure
+        Structure object from biopython package for specified PDB .cif file.
+    
+    """
+    pdb_struct = MMCIFParser().get_structure("tmp", pdb_path)
+    
+    return pdb_struct
 
 
 def fetch_pdb(pdb_id: str, remove: bool=True) -> Structure:
     """
-    Downloads protein structure in .cif format from Protein Data Bank 
+    Downloads a protein structure in .cif format from Protein Data Bank 
     by PDB ID and returns its as a Structure object from biopython package. 
     The downloaded file will be saved in current directory and then deleted
     if remove is True. PDB ID — the 4-character unique identifier of 
@@ -27,14 +50,14 @@ def fetch_pdb(pdb_id: str, remove: bool=True) -> Structure:
     Parameters
     ----------
     pdb_id: str
-        PDB ID of the needed structure.
+        PDB ID associated with the needed structure.
     remove: bool
         Remove or save downloaded file.
 
     Returns
     -------
     pdb_struct: Bio.PBD.Structure.Structure
-        Structure object from biopython package for specified pdb id.
+        Structure object from biopython package for specified PDB ID.
 
     """
     if len(pdb_id) != 4:
@@ -90,14 +113,13 @@ def phi_psi_angles(pdb_struct: Structure) -> Tuple[List[float], List[float]]:
     for peptide in peptides:
         for phi, psi in peptide.get_phi_psi_list():
             if phi and psi:
-                phi, psi = map(math.degrees, (phi, psi))
-                phis.append(phi)
-                psis.append(psi)
+                phis.append(degrees(phi))
+                psis.append(degrees(psi))
     
     return phis, psis
 
 
-def ram_plot(phi: List[float], psi: List[float], name: str):
+def ram_plot(phi: List[float], psi: List[float], name: str, density: bool=False):
     """
     Plots The Ramachandran plot from Phi & Psi values (in degrees).
 
@@ -117,15 +139,34 @@ def ram_plot(phi: List[float], psi: List[float], name: str):
         array with values of amino acids psi angles (in degrees)
     name: str
         PDB Id, which will be shown in plot title
+    density: bool
+        density estimation using Gaussian kernels
 
     """
-    plt.figure(figsize=(9, 9))
-    plt.scatter(phi, psi)
+    matplotlib.rcParams['axes.linewidth'] = 0.4
+
+    plt.figure(figsize=(5, 5), dpi=128)
+    plt.xlabel("$\phi$", size=6)
+    plt.ylabel("$\psi$", size=6)
+    plt.title(f"Ramachandran Plot. PDB ID: {name}", size=10, pad=10)
+    
+    plt.axvline(0, c="black", linewidth = 0.4, zorder=4)
+    plt.axhline(0, c="black", linewidth = 0.4, zorder=4)
     plt.xlim(-180, 180)
     plt.ylim(-180, 180)
-    plt.plot([0, 0], [-180, 180], color="black")
-    plt.plot([-180, 180], [0, 0], color="black")
-    plt.xlabel("$\phi$", size=14)
-    plt.ylabel("$\psi$", size=14)
-    plt.title(f"Ramachandran Plot. PDB ID: {name}", size=16)
-    plt.grid()
+
+    if density:
+        xy = np.vstack([phi, psi])
+        z = gaussian_kde(xy)(xy)
+        plt.scatter(phi, psi, c=z, s=20, zorder=6)
+    else:
+        plt.scatter(phi, psi, zorder=6)
+
+    plt.grid(b=None, which='major', axis='both', color='#d1d1d1', alpha=0.5)
+    plt.xticks([-180, -135, -90, -45, 0, 45, 90, 135, 180], fontsize=6)
+    plt.yticks([-180, -135, -90, -45, 0, 45, 90, 135, 180], fontsize=6)
+
+    
+
+    
+
