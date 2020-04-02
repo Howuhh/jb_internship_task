@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from math import degrees
 from typing import List, Tuple
 from scipy.stats import gaussian_kde
+from utils import density_estimation
 
 from Bio.PDB import PPBuilder
 from Bio.PDB.Structure import Structure
@@ -21,7 +22,7 @@ def load_pdb(pdb_path: str) -> Structure:
     Parameters
     ----------
     pdb_path: str
-        path to .cif file 
+        path to .cif file. 
 
     Returns
     -------
@@ -51,7 +52,7 @@ def fetch_pdb(pdb_id: str, remove: bool=True) -> Structure:
     ----------
     pdb_id: str
         PDB ID associated with the needed structure.
-    remove: bool
+    remove: bool, default=True
         Remove or save downloaded file.
 
     Returns
@@ -94,14 +95,14 @@ def phi_psi_angles(pdb_struct: Structure) -> Tuple[List[float], List[float]]:
     Parameters
     ----------
     pdb_struct: Bio.PBD.Structure.Structure
-        Structure object from biopython package       
+        Structure object from biopython package.
 
     Returns
     -------
     phi_values: List[float]
-        amino acids phi angles in degrees
+        amino acids phi angles in degrees.
     psi_values: List[float]
-        amino acids psi angles in degrees
+        amino acids psi angles in degrees.
 
     The order of angles is maintained, so zip(phi_values, psi_values) gives phi, psi angle for each amino acid.
     """
@@ -119,7 +120,8 @@ def phi_psi_angles(pdb_struct: Structure) -> Tuple[List[float], List[float]]:
     return phis, psis
 
 
-def ram_plot(phi: List[float], psi: List[float], name: str, density: bool=False):
+def ram_plot(phi: List[float], psi: List[float], name: str, 
+            density: bool=False, contour: bool=False, secondary: bool=False):
     """
     Plots The Ramachandran plot from Phi & Psi values (in degrees).
 
@@ -134,13 +136,17 @@ def ram_plot(phi: List[float], psi: List[float], name: str, density: bool=False)
     Parameters
     ----------
     phi: List[float]
-        array with values of amino acids phi angles (in degrees)
+        array with values of amino acids phi angles (in degrees).
     psi: List[float]
-        array with values of amino acids psi angles (in degrees)
+        array with values of amino acids psi angles (in degrees).
     name: str
-        PDB Id, which will be shown in plot title
-    density: bool
-        density estimation using Gaussian kernels
+        PDB Id, which will be shown in plot title.
+    density: bool, default=False
+        density estimation using Gaussian kernels.
+    contour: bool, defualt=False
+        draw contour lines using Gaussian kernels.
+    secondary: bool, defualt=False
+        plot labels for common secondary structures (a-helices, b-sheets, la-helices).
 
     """
     matplotlib.rcParams['axes.linewidth'] = 0.4
@@ -149,24 +155,33 @@ def ram_plot(phi: List[float], psi: List[float], name: str, density: bool=False)
     plt.xlabel("$\phi$", size=6)
     plt.ylabel("$\psi$", size=6)
     plt.title(f"Ramachandran Plot. PDB ID: {name}", size=10, pad=10)
-    
-    plt.axvline(0, c="black", linewidth = 0.4, zorder=4)
-    plt.axhline(0, c="black", linewidth = 0.4, zorder=4)
+
+    # angles for common secondary structures
+    if secondary:
+        plt.text(-57, -47, r"$\alpha$", fontsize=20, zorder=12)
+        plt.text(-119, 113, r"$\beta$", fontsize=18, zorder=12)
+        plt.text(57, 47, r"$L\alpha$", fontsize=18, zorder=12)
+        plt.text(75, -65, r"$\gamma$", fontsize=18, zorder=12)
+
+    plt.axvline(0, c="black", linewidth=0.4, zorder=4)
+    plt.axhline(0, c="black", linewidth=0.4, zorder=4)
     plt.xlim(-180, 180)
     plt.ylim(-180, 180)
 
     if density:
         xy = np.vstack([phi, psi])
         z = gaussian_kde(xy)(xy)
-        plt.scatter(phi, psi, c=z, s=20, zorder=6)
+
+        plt.scatter(phi, psi, c=z, s=10, zorder=6)
     else:
-        plt.scatter(phi, psi, zorder=6)
+        plt.scatter(phi, psi, s=10, zorder=6)
+
+    if contour:
+        x, y, z = density_estimation(np.array(phi), np.array(psi))
+
+        plt.contour(x, y, z, colors="black", linewidths=0.4, zorder=8, levels=12)
+        # plt.imshow(np.rot90(z), cmap="Greens", extent=[-180, 180, -180, 180], alpha=0.6)
 
     plt.grid(b=None, which='major', axis='both', color='#d1d1d1', alpha=0.5)
     plt.xticks([-180, -135, -90, -45, 0, 45, 90, 135, 180], fontsize=6)
     plt.yticks([-180, -135, -90, -45, 0, 45, 90, 135, 180], fontsize=6)
-
-    
-
-    
-
