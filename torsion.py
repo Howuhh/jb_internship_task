@@ -121,7 +121,8 @@ def phi_psi_angles(pdb_struct: Structure) -> Tuple[List[float], List[float]]:
 
 
 def ram_plot(phi: List[float], psi: List[float], name: str, 
-            density: bool=False, contour: bool=False, secondary: bool=False):
+            density: bool=False, contour: bool=False, secondary: bool=False, 
+            dpi: int=128, figsize: Tuple[int, int]=(5, 5)):
     """
     Plots The Ramachandran plot from Phi & Psi values (in degrees).
 
@@ -147,11 +148,14 @@ def ram_plot(phi: List[float], psi: List[float], name: str,
         draw contour lines using Gaussian kernels.
     secondary: bool, defualt=False
         plot labels for common secondary structures (a-helices, b-sheets, la-helices).
-
+    figsize: int, defualt=(5, 5)
+        plot size, same as in matplotlib (actually, exactly the same).
+    dpi: int, defualt=128
+        plot dpi.
     """
     matplotlib.rcParams['axes.linewidth'] = 0.4
 
-    plt.figure(figsize=(5, 5), dpi=128)
+    plt.figure(figsize=figsize, dpi=dpi)
     plt.xlabel("$\phi$", size=6)
     plt.ylabel("$\psi$", size=6)
     plt.title(f"Ramachandran Plot. PDB ID: {name}", size=10, pad=10)
