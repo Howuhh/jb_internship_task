@@ -3,7 +3,7 @@
 Simple module to plot Ramachandran plots with python. It can extract torsion angles from pdb/cif files, plot Ram plots,
 or fetch and save pdb files from Protein Data Bank by ID. The rest of the functionality is described in `torsion.py` docstrings. It's simple!
 
-- `torsion.py` - main module with all needed functions
+- `torsion/torsion.py` - main module with all needed functions
 - `pdb_plot.ipynb` - example plots & description of Ramplot.
 
 # Quick example

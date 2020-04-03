@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from math import degrees
 from typing import List, Tuple
 from scipy.stats import gaussian_kde
-from utils import density_estimation
+from .utils import density_estimation
 
 from Bio.PDB import PPBuilder
 from Bio.PDB.Structure import Structure
