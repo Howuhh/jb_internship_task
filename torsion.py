@@ -120,7 +120,7 @@ def phi_psi_angles(pdb_struct: Structure) -> Tuple[List[float], List[float]]:
     return phis, psis
 
 
-def ram_plot(phi: List[float], psi: List[float], name: str, 
+def ram_plot(phi: List[float], psi: List[float], pdb_id: str, 
             density: bool=False, contour: bool=False, secondary: bool=False, 
             dpi: int=128, figsize: Tuple[int, int]=(5, 5)):
     """
@@ -140,7 +140,7 @@ def ram_plot(phi: List[float], psi: List[float], name: str,
         array with values of amino acids phi angles (in degrees).
     psi: List[float]
         array with values of amino acids psi angles (in degrees).
-    name: str
+    pdb_id: str
         PDB Id, which will be shown in plot title.
     density: bool, default=False
         density estimation using Gaussian kernels.
@@ -158,7 +158,7 @@ def ram_plot(phi: List[float], psi: List[float], name: str,
     plt.figure(figsize=figsize, dpi=dpi)
     plt.xlabel("$\phi$", size=6)
     plt.ylabel("$\psi$", size=6)
-    plt.title(f"Ramachandran Plot. PDB ID: {name}", size=10, pad=10)
+    plt.title(f"Ramachandran Plot. PDB ID: {pdb_id}", size=10, pad=10)
 
     # angles for common secondary structures
     if secondary:
@@ -184,6 +184,7 @@ def ram_plot(phi: List[float], psi: List[float], name: str,
         x, y, z = density_estimation(np.array(phi), np.array(psi))
 
         plt.contour(x, y, z, colors="black", linewidths=0.4, zorder=8, levels=12)
+        # well, if you really want, you can uncomment this line
         # plt.imshow(np.rot90(z), cmap="Greens", extent=[-180, 180, -180, 180], alpha=0.6)
 
     plt.grid(b=None, which='major', axis='both', color='#d1d1d1', alpha=0.5)

@@ -4,7 +4,7 @@ Simple module to plot Ramachandran plots with python. It can extract torsion ang
 or fetch and save pdb files from Protein Data Bank by ID. The rest of the functionality is described in `torsion.py` docstrings. It's simple!
 
 - `torsion.py` - main module with all needed functions
-- `pdb_plots.ipynb` - example plots & description of Ramplot
+- `pdb_plot.ipynb` - example plots & description of Ramplot.
 
 # Quick example
 
@@ -21,12 +21,12 @@ pdb_struct = load_pdb("pdb_data/6pcy.cif")
 phi_angles, psi_angles = phi_psi_angles(pdb_struct)
 
 # plot!
-ram_plot(phi_angles, psi_angles, density=True, secondary=True)
+ram_plot(phi_angles, psi_angles, pdb_id="6PCY", density=True, secondary=True)
 ```
 ![ramplot](figs/example.png)
 
 
 # Limitations
 
-- In the current state it is possible to add contour on a plot with gaussian kde `contour=True`, but it's not the same as "core/not-core" or “core/allowed“generously allowed” regions.
-- No chain labels.
+- in the current state it is possible to add contour on a plot with gaussian kde `contour=True`, but it's not the same as "core/not-core" or “core/allowed/generously allowed” regions
+- no chain labels.
