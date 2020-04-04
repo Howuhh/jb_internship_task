@@ -144,13 +144,13 @@ def ram_plot(phi: List[float], psi: List[float], pdb_id: str,
         PDB Id, which will be shown in plot title.
     density: bool, default=False
         density estimation using Gaussian kernels.
-    contour: bool, defualt=False
+    contour: bool, default=False
         draw contour lines using Gaussian kernels.
-    secondary: bool, defualt=False
+    secondary: bool, default=False
         plot labels for common secondary structures (a-helices, b-sheets, la-helices).
-    figsize: int, defualt=(5, 5)
+    figsize: int, default=(5, 5)
         plot size, same as in matplotlib (actually, exactly the same).
-    dpi: int, defualt=128
+    dpi: int, default=128
         plot dpi.
     """
     matplotlib.rcParams['axes.linewidth'] = 0.4
